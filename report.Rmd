@@ -1,0 +1,228 @@
+---
+title: "Working with data assignment"
+author: "Jayadeep Sasikumar"
+date: "11/9/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+options(width=40)
+
+library(kableExtra)
+library(knitr)
+```
+   
+##1. Quarterly Economic Indicators  
+```{r one_base, include=FALSE}
+source('Plots.R')
+```  
+  
+**1.1 Employment trend in Dublin (2006 to 2016) - A sector-wise breakup**  
+
+```{r one_one, echo=FALSE}
+PlotEmploymentTrends(employment.trends)
+```
+  
+This is a breakup of the employment trend in Dublin, starting at the first quarter of 2006 and ending at the third quarter of 2016 across seven sectors. The employment was very strongly affected at around the period spanning from quarters 8 to 10, across all the seven sectors, falling steeply during the period.
+  
+**Construction and Retail -**  
+It is interesting to note that Construction and Retail, the two sectors which offered the most employment among these seven sectors in 2006 occupy the bottommost two spots in 2016. These two offered the most employment opportunities till the crash in quarters 8 to 10, from which they are yet to recover. Furthermore, Retail scores the least in 2016 and seems to be still going on a downward trajectory, whereas Construction seems to be steadily recovering.  
+  
+**IT, Scientific and Tourism -**  
+The story has been almost the exact opposite in these sectors as employment in the IT, Scientific and Tourism sectors seem to have made remarkable progress over the years. Ranked in the bottom half (bottommost three if we exclude the ever-fluctuating Finance sector) in 2006, come 2016, all these sectors occupy the top three spots, with Tourism scoring the most. Further, it is interesting that all the three sectors seem to have reached their bottommost around the same period (around quarters 20 to 23) and climb almost steadily after that. Also, all these three sectors seem to have experienced a sharp fall at around quarter 33 and recovered in a strong fashion from the period spanning from quarters 35 to 37.  
+  
+**Finance and Transport -**  
+These two sectors have been the most fluctuating ones across this period, displaying both very sharp rises and falls throughout. Transport sector has experienced a very steep rise from around quarter 39 and seems to have reached its highest position since quarter 22.  
+  
+**1.2 Property trends in Dublin (2007 to 2016)**  
+```{r one_two, echo=FALSE}
+PlotPropertyTrends(property.trends)
+```  
+  
+This is a summary of the property trend in Dublin, starting at the third quarter of 2007 and ending at the third quarter of 2016. Four trends covered are that of apartment rental, house prices, house rental and houses built. It is very interesting to see that all the four trends follow a similar path over the years and that the order of trends at the end is exactly the opposite of the order at the beginning.  
+  
+**Similar trajectory -**  
+1. All four trends followed a downward path over the first half of the period considered.  
+2. All going to negative in a time period between quarters 7 and 11.  
+3. After experiencing a shared lull, each trend has been climbing back, albeit at different paces.  
+  
+We can further divide the trends into two sections based on the similarity of the paths followed.
+
+**a. Houses built and house prices -**  
+Both these trends have followed extremely similar trends over the years. Starting at the top in quarter 1, both trends fell at a seemingly uniform rate for the first 12 quarters, with houses built plateauing at around -0.7, while house prices continue to fall until around quarter 19 before plateauing. Both the trends began to rise at around the quarters 24-25 and have been almost consistently making slow progress since. Both the trends seem to be languishing near 0 at the end of the period considered.  
+  
+**b. Apartment rental and house rental -**  
+The two rental trends display a very strong correlation throughout the whole period considered. Both the trends hit their respective lows of below -1 between quarters 13 and 15, and then began to climb steadily upwards since. The climb upwards can further be classed as two distinctive ones as well. The first one is from quarters 19 to 23, and the second one is from quarter 23 onwards. The rate at which the trends rise in the second period is much higher.  
+  
+  
+##2. Bike info  
+```{r two_base, include=FALSE}
+source("BikeInfo.R")
+```  
+  
+**2.1 Bikes in Dublin**  
+  
+From [JCDecaux Developer](https://developer.jcdecaux.com "JCDecaux Developer"), we have got information on `r I(nrow(dublin.data.df))` bike stations in the city of Dublin at `r I(trimws(format(Sys.time(), "%l:%M %p on %A, %b %d %Y")))`. From the data, we can see that `r I(GetOpenStations(dublin.data.df))` stations in Dublin are open, `r I(sum(open.stations$banking))` of which have payment terminals. We will look further into the open stations.  
+  
+The number of bike stands in each station varies from `r I(min(open.stations$bike_stands))` to `r I(max(open.stations$bike_stands))`. There are a total of `r I(total.stands.count)` bike stands distributed over the `r I(nrow(open.stations))` stations. The bike stations have been classified on the basis of the number of bike stands in the station - a station with 20 or less stands as 'small', one with 21 to 30 as 'medium' and one with more than 30 as 'large'.  
+  
+Also, the stations has been classified on the percentage of the bikes being used at the given time - upto 33% of bikes being used is classed as 'low', 34% to 66% as 'medium' and anything over 66% as 'high'.  
+  
+This is the current overall utilisation per size of the bike station.  
+```{r two_one_table_a, echo=FALSE, results='asis'}
+# TODO: Learn and add CSS to the tables.
+utilisation.by.size %>%
+  kable('html') %>%
+  kable_styling(full_width=FALSE)
+# datatable(utilisation.by.size, autoHideNavigation=TRUE)
+```  
+  
+This is a cross-table providing an idea of how the stations are performing currently.  
+```{r two_one_table_b, echo=FALSE, results='asis'}
+class.summary %>%
+  kable('html') %>%
+  kable_styling(full_width=FALSE)
+# datatable(utilisation.by.size, autoHideNavigation=TRUE)
+```  
+  
+  
+**2.2 Nearest stations and bike availability**  
+  
+This is a simple prototype of a feature of an app that is under development in Kalip Industries. The purpose of the app is very simple. It aims to make the life of Dublin Bike users easier by helping them make quicker and better informed decisions. We, at Kalip Industries, are aware of the time constraints on the modern day life and care has been taken to ensure that the app is mindful of the same.  
+
+The functionality that is being showcased here can be used by a biker in Dublin who is either trying to pick up a bike or has a bike and wants to find out where she can drop the bike off. The user, on inputing her present location and whether she wants to borrow a bike or return one, will be presented with a very simple and intuitive plot showing the user the five stations nearest to her, and the number of bikes(or empty bike stands) available in the station. The plot shown is with location set as the Spire and for a user who wants to borrow a bike.  
+```{r two_two, echo=FALSE, fig.width=12, fig.height=8}
+PlotNearestAvailableStations(open.stations)
+```  
+  
+  
+##3. Dublin Bus
+```{r three_base, include=FALSE}
+source("DublinBus.R")
+```  
+  
+**3.1 Exploring the Dublin Bus Data**  
+  
+Here, we are exploring the DublinBus data from January 27, 2013 to October 31, 2013. There are a total of 3 services under DublinBus, with Service 1 operating on the weekdays, Service 2 operating on Sunday and Monday, and Service 3 operating only on Saturday. Firstly, we will explore the data service-wise - How many routes are covered under each service?  
+  
+**a. How many routes are covered under each service?**
+```{r three_one_routes_by_services, echo=FALSE}
+PlotRoutesByServices(trips)
+```  
+  
+DublinBus has a coverage of `r I(stop.count)` stops spread over `r I(stop.area.count)` different areas as identified by DublinBus. For further analysis, we will look at service 1 only, to gain a better insight on how DublinBus served the city during the weekdays.  
+  
+**b. Are the most important areas the busiest ones as well?**  
+We can examine how vital an area is by examining how many routes cover an area. Dividing this value by the number of stops in the area will give us our area importance score. Similarly, we can examine how busy each area is by finding out how many trips cover an area. Again, dividing this value by the number of stops in the area will give us our area busyness score. Here, we are plotting the area importance score against area busyness score.   
+```{r three_one_plot_importance_busyness, echo=FALSE}
+PlotStopImportance(vital.stops, busy.stops)
+```  
+  
+We can observe that the number of trips per area and the number of routes per area has a positive correlation. The most important/connected an area, the more likely it is to be busier as well.  
+  
+**c. Which are the most important routes?**  
+```{r three_one_plot_important_routes, echo=FALSE}
+PlotTripsByRoutes(trips, routes)
+```  
+  
+**3.2 Exploring 40D route**  
+  
+40D runs from Tyrrelstown to Parnell St and back.  
+
+```{r three_two_daywise_trips, echo=FALSE}
+PlotDayWiseTrips(route.40d.days)
+```  
+  
+As we can see, the frequency over the whole day is lesser in the weekends than in the weekdays. The number of trips in the 40D route is the highest in Mondays owing to the fact that 2 services run on Monday.  
+  
+The average speed of a bus can be expected to vary over different periods of time and also in different days of the week (in weekends, the traffic may be lesser). So, here, we examine the mean speed in kilometre per hour of a bus in 40D at different time periods of a day across the three services.  
+  
+```{r three_two_speed_time_buckets, echo=FALSE}
+PlotBucketWiseSpeeds(route.40d.trips)
+```  
+  
+Noon to 6 PM seem to be the slowest period, irrespective of the day(service). And there is a remarkable improvement in the average speed of the bus after 6 PM. Also, there is a considerable difference between the average speeds among the different days. As could be expected, Services 2 and 3 seem to have a higher average speed, probably owing to the lesser traffic experienced in the weekends.  
+  
+##4. Footfall
+```{r four_base, include=FALSE}
+source("Footfall.R")
+```  
+  
+**4.1 A comparison of weekly footfall patterns over 2013 at 2 entrances - O'Connell Street at Clerys and South King St**  
+  
+```{r four_one_weekly_comparison, echo=FALSE, fig.width=12, fig.height=8}
+PlotWeekWiseComparison()
+```  
+  
+Here, we are comparing the footfall patterns over the 52 weeks of 2013 as observed by two cameras, one at O'Connell Street at Clerys and the other at South King St. As can be seen, O'Connell Street at Clerys has seen much more traffic than South King St.  
+  
+**a. Similar pattern:** Both the trends follow similar trajectories, experiencing spikes in traffic after week 10 and between weeks 25 and 30, and dropping off after week 50 (probably due to post-Christmas effect).  
+  
+**b. Difference between Ins and Outs at Clerys:**  It is interesting to observe the huge gap between ins and outs at Clerys indicating that a huge proportion of people going through the entrance leave through another one. On the other hand, the ins and outs are very comparable in the South King St.  
+  
+**4.2 Did weekly footfall patterns observed at Clerys, O'Connell Street and how Euro fared in the market have any relationship?**  
+  
+We will examine this theory. Euro's exchange rate against GBP for 2013 was obtained from   [PoundSterling LIVE](https://www.poundsterlinglive.com "PoundSterling LIVE"). Average exchange rates for each of the 52 weeks were calculated and we can now see whether these two had any correlation.  
+  
+```{r four_two_scatter_plot, echo=FALSE}
+PlotFootfallVsExchangeRateScatter(exchange.df)
+```  
+  
+From this, it looks like there was indeed a positive correlation between how Euro fared against GBP and the footfall observed at Clerys at O'Connell Street. Now, we can proceed and take a look at the trend as well. Before proceeding though, we will normalise both the set of observations to make the comparison proper.  
+  
+```{r four_two_trend, echo=FALSE}
+PlotFootfallVsExchangeRateTrend(exchange.df)
+```  
+  
+The trends, although not extemely similar, could be said to share some similarities. 
+  
+##5. Reflection  
+  
+```{r five_base, include=FALSE}
+source('Reflection.R')
+```  
+  
+**5.1 An analysis on the code written as part of the assignment**  
+  
+All of the commands run in R console is logged in history_database file. This is the file we look at for this analysis. A copy of the file has been made available in the working directory prior to the analysis. A total of `r I(initial.file.length)` lines were there in the file. Commands that have been run when in the assignment workspace have been extracted for further analysis as explained in Reflection.R. `r I(final.commands.count)` commands were finally identified. Of these, `r I(dplyr.used)` commands were from the dplyr package and `r I(ggplot.used)` from the ggplot2 package.  
+  
+First, let us examine how the work was divided over the entire period.  
+```{r five_one_commands_dates_plot, echo=FALSE}
+PlotCommandsVsDates(commands.df)
+```  
+  
+The activity before November 11^th^ was very less. Then, the two rises that we see on either side of November 13^th^ depict me working on the second and third questions respectively. The relative inactivity on November 16^th^ can probably be attributed to a fever I was having. And the steep rise after that represents my working on the remainder of the assignment. Although, it has to be noted that the numbers for the last two days will be skewed due to the frequent rerunning of the entire code to test it.  
+  
+Next, we shall look into the number of R commands executed over different times of the day. The pattern over the days could be skewed by the last two days of work, as it was mostly rerunning the same commands a lot of times as part of testing. So, we consider these as two different graphs.  
+```{r five_one_time_bucket_plot, echo=FALSE}
+PlotCommandsInBuckets(commands.df)
+```  
+  
+Looking at the graph from before November 19^th^, 6 PM to 9 PM slot is where most of my commands fit in. The 9 PM + slot comes second. This corroborates the fact that I usually prefer to work after evening. Also, that after November 19^th^, I have spent more time working in the midnight to 3 AM slot in 2 days than I did in the whole period before that. Also, unsurprisingly, I have not worked on the assignment between 3 Am to 9 AM.  
+  
+**5.2 Personal Reflection**  
+  
+I was completely new to R once this class started. I have had experience in Java and PHP in the past and more recently, I have been working in Python. In fact, I have been working almost exclusively in Python for the past 2.5 years. It did take a bit of time for me to get used to something very different to the object-oriented approach used in Python which I found almost intuitive. Prior to this course, my experience with datasets was limited to reading from a spreadsheet and forming objects or serialising an object and writing it to a spreadsheet. This course and this project in particular has given me a very good platform on working with data to build upon in the future.  
+  
+The first question, as mentioned in the problem statement, was somewhat like a warmup one. It was pretty straight-forward and there was no difficulty in plotting the graphs as required.
+For me, the difficult part was to begin with the interpretation of the plots. I had it in my mind as a daunting task and kept procrastinating. The fear was misplaced as I came to know later when I actually sat down and started with the interpretation of the plots and I did find it an interesting exercise.  
+  
+The second question was a bit difficult for me. More time was spent on thinking about how to describe the dataset available than actually writing code or describe it. Coming up with a problem statement and providing a solution for it as required per the second part of the second question was even more tedious for me. I am used to receiving a problem statement and then solving it. Coming up with the problem as well was a bit different to say the least. Nevertheless, by the time I completed the question, I was enjoying doing it.  
+  
+The third question was downright terrifying for me in that there was no clear problem statement - the data was given and there were not many questions on it. This made me put on my procrastination hat again for a good while. Again, the more difficult part was thinking and coming up with questions to solve than actually solving them. The progression of quality of code from the previous question's solution to this one was striking to me. I did write two functions in BikeInfo.R (ClassifyStation and ClassifyUtilisation) that I believe now are something I could have done without. I got much more comfortable with the dplyr and ggplot2 packages while I was working on the third question.  
+  
+The first part of the fourth question was pretty straightforward. Reading the ODS file using readODS package was a bit time consuming. I was not able to cut down on the time taken to read all the 52 sheets of the file. For the purpose of running the Markdown file quickly, I have made the relevant data available in 2 CSVs. The function which reads from the actual ODS file and writes these two CSVs is in Footfall.R (ReadFromODSFile).  
+  
+The analysis done as part of personal reflection in the final part of the assignment did prove my extensive use of dplyr (more than 20% of my commands were from the dplyr package). Also, the number of commands run over the time period of the assignment is incriminating evidence of my lacklustre time-management skills.  
+
+**Some problems faced -**  
+1. Cutting short the time required to read the ODS file.  
+2. Coming to terms with vectorisation in R. Most of the functions are vectorised in R, but I believe the `if` construct is not. This gave me problems multiple times over the assignment. I ended up writing the function ClassifyTime in Reflection.R as a result of this. It makes use of the `ifelse` construct (which is vectorised).  
+3. The most time-consuming and strenuous one had to be coming up with something when there is not a clear problem statement in front of me.  
+  
+**Some takeaways -**  
+1. That my time-management skills leave much to be desired is not a new bit of information for me. I believe that a remarkable improvement could be made if I just start with a problem. It has been like that for most parts of this assignment. If I were to trace out a pattern, it would probably resemble this - read the question, get terrified, procrastinate, get stressed, finally sit down to work, find out that the problem was not actually as daunting as I thought in the beginning.  
+2. I feel much more comfortable working with datasets now. In fact, I had the opportunity to participate in the Datahack organised by AIB and I found that I was at ease with the data wrangling part and was grateful for the course and this assignment in particular.  
+  
+To conclude, I strongly believe that I have gained a solid foundation on the basics of working with data and I hope I will be able to build on this.  

@@ -1,0 +1,17 @@
+These are the packages used for the assignment:
+
+chron
+dplyr
+ggmap
+ggplot2
+httr
+jsonlite
+kableExtra
+knitr
+lubridate
+readr
+readODS
+readtext
+reshape2
+rvest
+stringr
